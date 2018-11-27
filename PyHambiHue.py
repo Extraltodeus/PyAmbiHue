@@ -70,8 +70,8 @@ loops_per_sec=""
 if answer == "1":
     config['loops_per_sec'] = loops_per_sec = float(input("How many loops per second? (0-14)\n"))
     m_sat = int(input("minimum saturation (must be integer, 0-255)\n"))
-    m_bri = int(input("minimum luminosity (must be integer, 0-255)\n"))
     r_sat = int(input("saturation variation  (must be integer, 0-255, variation + minimum value must not exceed 255(room : "+str(255-m_sat)+"))\n"))
+    m_bri = int(input("minimum luminosity (must be integer, 0-255)\n"))
     r_bri = int(input("luminosity variation  (must be integer, 0-255, variation + minimum value must not exceed 255(room : "+str(255-m_bri)+"))\n"))
 elif answer == "2":
     loops_per_sec = 2
