@@ -5,16 +5,23 @@ from qhue import Bridge
 from PIL import Image
 from qhue import create_new_username
 import json
+from math import ceil
 
 def init_config():
     IP = str(input("Please enter your hue bridge IP address: "))
     if IP == "":
         print('Visit https://huetips.com/help/how-to-find-my-bridge-ip-address/ to know how to get your bridge IP address')
         sleep(300)
+
     username = create_new_username(IP)
     config={
     'IP':IP,
-    'username':username
+    'username':username,
+    "loops_per_sec": 2.0,
+    "m_sat": 185,
+    "m_bri": 70,
+    "r_sat": 70,
+    "r_bri": 50
     }
 
     b = Bridge(config['IP'], config['username'])
@@ -56,12 +63,45 @@ sct = mss.mss()
 # Tweakable variable below. r_ and m_ variable must have a sum of max 255
 monitor_number=1
 chosen_light = config['chosen_light']
-t_sleep = 0.08
+print()
 
-r_sat = 155
-r_bri = 255
-m_sat = 100
-m_bri = 0
+answer = input("Select an option (leave blank for last settings)\n\n1 : custom settings\n2 : comfort mode\n3 : gaming mode\n")
+loops_per_sec=""
+if answer == "1":
+    config['loops_per_sec'] = loops_per_sec = float(input("How many loops per second? (0-14)\n"))
+    m_sat = int(input("minimum saturation (must be integer, 0-255)\n"))
+    m_bri = int(input("minimum luminosity (must be integer, 0-255)\n"))
+    r_sat = int(input("saturation variation  (must be integer, 0-255, variation + minimum value must not exceed 255(room : "+str(255-m_sat)+"))\n"))
+    r_bri = int(input("luminosity variation  (must be integer, 0-255, variation + minimum value must not exceed 255(room : "+str(255-m_bri)+"))\n"))
+elif answer == "2":
+    loops_per_sec = 2
+    r_sat = 185
+    r_bri = 70
+    m_sat = 70
+    m_bri = 50
+elif answer == "3":
+    loops_per_sec = 12.5
+    r_sat = 50
+    r_bri = 155
+    m_sat = 205
+    m_bri = 100
+else:
+    loops_per_sec = config['loops_per_sec']
+    m_sat = config['m_sat']
+    m_bri = config['m_bri']
+    r_sat = config['r_sat']
+    r_bri = config['r_bri']
+
+config['loops_per_sec'] = loops_per_sec
+config['m_sat'] = m_sat
+config['m_bri'] = m_bri
+config['r_sat'] = r_sat
+config['r_bri'] = r_bri
+with open('./config.json', 'w') as fp:
+    json.dump(config, fp)
+
+t_sleep = 1/loops_per_sec
+transitiontime = ceil(t_sleep*10)
 
 def daemonizer(fName):
     try:
@@ -110,12 +150,17 @@ def rgb2hsv(r, g, b):
     return h, s, v
 
 def send_hue(hue,sat,bri):
-    lights[chosen_light].state(transitiontime=1,hue=hue,sat=sat,bri=bri)
+    lights[chosen_light].state(transitiontime=transitiontime,hue=hue,sat=sat,bri=bri)
 
 if __name__ == '__main__':
     print("")
     print("- PyAmbiHue initialised -")
     print("")
+    print("Time interval :","%.2f" % t_sleep,"seconds")
+    print("Minimum saturation :",m_sat)
+    print("Maximum saturation :",m_sat+r_sat)
+    print("Minimum luminosity :",m_bri)
+    print("Maximum luminosity :",m_bri+r_bri)
 
     while True:
         sct_img = sct.grab(sct.monitors[monitor_number])
