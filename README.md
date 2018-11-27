@@ -6,5 +6,4 @@ Ambiant light for philipps hue on a computer.
 ## Installation :
 
 - [Install Python3 if not already](https://www.python.org/downloads/windows/)
-- Copy the two files "PyAmbieHue.py" and "requirements.txt"
 - Run the script and follow the instructions
