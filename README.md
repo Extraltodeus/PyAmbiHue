@@ -6,8 +6,5 @@ Ambiant light for philipps hue on a computer.
 ## Installation :
 
 - [Install Python3 if not already](https://www.python.org/downloads/windows/)
-- Run these lines in the command prompt to install the dependencies :
-  - pip install qhue
-  - pip install mss
-  - pip install pillow
+- Copy the two files "PyAmbieHue.py" and "requirements.txt"
 - Run the script and follow the instructions
