@@ -10,12 +10,7 @@ try:
     from math import ceil
 except ImportError:
     print("Requirements not satisfied, installing...")
-    sleep(0.3)
-    print(".")
-    sleep(0.3)
-    print(".")
-    sleep(0.3)
-    print(".")
+    sleep(1)
     os.system('pip install pillow')
     os.system('pip install mss')
     os.system('pip install qhue')
