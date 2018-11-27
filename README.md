@@ -9,5 +9,5 @@ Ambiant light for philipps hue on a computer.
 - Run these lines in the command prompt to install the dependencies :
   - pip install qhue
   - pip install mss
-  - pip install PIL
+  - pip install pillow
 - Run the script and follow the instructions
