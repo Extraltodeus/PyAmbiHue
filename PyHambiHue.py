@@ -56,12 +56,12 @@ sct = mss.mss()
 # Tweakable variable below. r_ and m_ variable must have a sum of max 255
 monitor_number=1
 chosen_light = config['chosen_light']
-t_sleep = 0.1
+t_sleep = 0.08
 
-r_sat = 0
-r_bri = 55
-m_sat = 255
-m_bri = 200
+r_sat = 155
+r_bri = 255
+m_sat = 100
+m_bri = 0
 
 def daemonizer(fName):
     try:
@@ -72,7 +72,7 @@ def daemonizer(fName):
         print(e)
 
 def average_colour(image):
-    divider=5
+    divider=4
     w, h = image.size
     image = image.resize((int(w/divider),int(h/divider)), Image.ANTIALIAS)
     w, h = image.size
@@ -116,7 +116,7 @@ if __name__ == '__main__':
     print("")
     print("- PyAmbiHue initialised -")
     print("")
-    
+
     while True:
         sct_img = sct.grab(sct.monitors[monitor_number])
 
@@ -136,4 +136,3 @@ if __name__ == '__main__':
         daemonizer(send_hue(H,S,B))
 
         sleep(t_sleep)
-
