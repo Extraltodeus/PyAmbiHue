@@ -19,6 +19,7 @@ except ImportError:
     os.system('pip install pillow')
     os.system('pip install mss')
     os.system('pip install qhue')
+    print()
     print("Please restart the programm")
     sleep(300)
 
