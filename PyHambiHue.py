@@ -1,11 +1,22 @@
-import threading
+import os
 from time import sleep
-import mss
-from qhue import Bridge
-from PIL import Image
-from qhue import create_new_username
-import json
-from math import ceil
+try:
+    import threading
+    import mss
+    from qhue import Bridge
+    from PIL import Image
+    from qhue import create_new_username
+    import json
+    from math import ceil
+except ImportError:
+    print("Requirements not satisfied, installing...")
+    os.system('pip install pillow')
+    os.system('pip install mss')
+    os.system('pip install qhue')
+    print("Please restart the programm")
+    sleep(300)
+
+
 
 def init_config():
     IP = str(input("Please enter your hue bridge IP address: "))
@@ -77,8 +88,8 @@ elif answer == "2":
     loops_per_sec = 2
     r_sat = 185
     r_bri = 70
-    m_sat = 70
-    m_bri = 50
+    m_sat = 60
+    m_bri = 80
 elif answer == "3":
     loops_per_sec = 12.5
     r_sat = 50
