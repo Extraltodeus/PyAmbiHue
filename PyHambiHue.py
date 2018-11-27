@@ -1,4 +1,3 @@
-import numpy as np
 import threading
 from time import sleep
 import mss
@@ -6,7 +5,6 @@ from qhue import Bridge
 from PIL import Image
 from qhue import create_new_username
 import json
-from pprint import pprint
 
 def init_config():
     IP = str(input("Please enter your hue bridge IP address: "))
@@ -73,18 +71,6 @@ def daemonizer(fName):
     except Exception as e:
         print(e)
 
-def most_frequent_colour(image):
-    w, h = image.size
-    pixels = image.getcolors(w * h)
-
-    most_frequent_pixel = pixels[0]
-
-    for count, colour in pixels:
-        if count > most_frequent_pixel[0]:
-            most_frequent_pixel = (count, colour)
-
-    return most_frequent_pixel
-
 def average_colour(image):
     divider=5
     w, h = image.size
@@ -102,8 +88,6 @@ def average_colour(image):
     g=int(g/(w*h))
     b=int(b/(w*h))
     return (r,g,b)
-
-
 
 def rgb2hsv(r, g, b):
     r, g, b = r/255.0, g/255.0, b/255.0
@@ -132,8 +116,7 @@ if __name__ == '__main__':
     print("")
     print("- PyAmbiHue initialised -")
     print("")
-
-
+    
     while True:
         sct_img = sct.grab(sct.monitors[monitor_number])
 
@@ -153,3 +136,4 @@ if __name__ == '__main__':
         daemonizer(send_hue(H,S,B))
 
         sleep(t_sleep)
+
