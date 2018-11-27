@@ -1,5 +1,7 @@
 # PyAmbiHue
-ambi-light for philipps hue on a computer
+Ambiant light for philipps hue on a computer.
+
+2 default profiles (comfort and gaming), and the possibility for a custom one!
 
 ## Installation :
 
