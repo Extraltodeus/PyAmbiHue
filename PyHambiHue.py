@@ -113,12 +113,12 @@ if answer == "1":
         print(r_bri)
     else:
         r_bri = int(r_bri)
-    divider = input("Performance level. From one to ten. Ten being a spare petacore on your spaceship : (Last "+str(-1*(config['divider']-11))+") : ")
+    divider = input("Performance level. From one to ten. One being a spare petacore on your spaceship and ten a potato with the flu : (Last "+str(config['divider'])+") : ")
     if divider == "":
         divider = config['divider']
         print(divider)
     else:
-        divider = int(11-int(divider))
+        divider = int(divider)
 
     crop  = input("Crop proportion from the center of the image. Must be minimum one (=no crop), can be float (Last "+str(config['crop'])+") : ")
     if crop != "":
@@ -255,26 +255,31 @@ def send_hue(hue,sat,bri):
         pass
 
 if __name__ == '__main__':
+    monitor = sct.monitors[monitor_number]
+    screen  = crop_dimensions(monitor,crop)
     print("")
     print("- PyAmbiHue initialised -")
     print("")
     print("Time interval      :","%.2f" % t_sleep,"sec.")
+    print("Refresh per second :",loops_per_sec)
+    print("")
     print("Minimum saturation :",m_sat)
     print("Maximum saturation :",m_sat+r_sat)
     print("Minimum luminosity :",m_bri)
     print("Maximum luminosity :",m_bri+r_bri)
+    print("Performance profile:",divider)
     print("")
     print("Crop factor :",crop)
     if bezel == 2:
         print("Crop method : keep center")
+        print("Effort (pixels per second/1000) :", loops_per_sec/1000*(int(screen['width']/divider)*int(screen['height']/divider)))
     else:
         print("Crop method : keep frame")
+        print("Effort (pixels per second/1000) :", loops_per_sec/1000*(int(monitor['width']/divider)*int(monitor['height']/divider)-int(screen['width']/divider)*int(screen['height']/divider)))
     print("")
 
-    while True:
-        monitor = sct.monitors[monitor_number]
-        screen  = crop_dimensions(monitor,crop)
 
+    while True:
         if bezel == 2:
             sct_img = sct.grab(screen)
         else:
