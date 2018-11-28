@@ -6,7 +6,7 @@ import threading
 try:
     import mss
     from qhue import Bridge
-    from PIL import Image
+    from PIL import Image,ImageDraw
     from qhue import create_new_username
     import json
     from math import ceil
@@ -80,9 +80,9 @@ monitor_number=1
 chosen_light = config['chosen_light']
 print()
 
-answer = input("Select an option (leave blank for last settings)\n\n1 : custom settings\n2 : comfort mode\n3 : gaming mode\n")
+answer = input("Select an option (leave blank for last settings)\n\n1 : Custom profile\n2 : comfort mode\n3 : gaming mode\n4 : custom profile settings\n")
 loops_per_sec=""
-if answer == "1":
+if answer == "4":
     print("\n! You can always press enter to validate the previous value !\n")
     loops_per_sec = input("How many loops per second? (0-10) (Last "+str(config['loops_per_sec'])+") : ")
     if loops_per_sec == "":
@@ -197,10 +197,11 @@ def daemonizer(fName):
     except Exception as e:
         print(e)
 
-def average_colour(image,bezel,screen,coord):
+def average_colour(image,bezel,screen,coord,scnst):
     w, h = image.size
     image = image.resize((int(w/divider),int(h/divider)), Image.ANTIALIAS)
-    image.save('sc.png')
+    if scnst:
+        im = image.load()
     w, h = image.size
     x1 = (screen['left']-coord['left'])/divider
     x2 = (screen['left']-coord['left']+screen['width'])/divider
@@ -209,6 +210,8 @@ def average_colour(image,bezel,screen,coord):
     r=g=b=c=0
     for haut in range(0,h):
         for large in range(0,w):
+            if scnst and bezel == 1 and not ((x1 > large or large > x2) or (y1 > haut or haut > y2)):
+                im[large,haut] = (0,0,0)
             if bezel == 1 and ((x1 > large or large > x2) or (y1 > haut or haut > y2)):
                 c+=1;
                 pix = image.getpixel((large,haut))
@@ -224,6 +227,9 @@ def average_colour(image,bezel,screen,coord):
     r=int(r/c)
     g=int(g/c)
     b=int(b/c)
+
+    if scnst:
+        image.save('sc.png')
 
     return (r,g,b)
 
@@ -254,6 +260,29 @@ def send_hue(hue,sat,bri):
     except Exception as e:
         pass
 
+def loop_step(monitor,screen,scnst):
+    if bezel == 2:
+        sct_img = sct.grab(screen)
+    else:
+        sct_img = sct.grab(monitor)
+
+    im = Image.frombytes("RGB", sct_img.size, sct_img.bgra, "raw", "BGRX")
+
+    main_pixel = average_colour(im,bezel,screen,sct.monitors[monitor_number],scnst)
+
+    r = main_pixel[0]
+    g = main_pixel[1]
+    b = main_pixel[2]
+
+    HSB = rgb2hsv(r, g, b)
+
+    H = int(65535/360*HSB[0])
+    S = int(r_sat*HSB[1])+m_sat
+    B = int(r_bri*HSB[2])+m_bri
+
+    daemonizer(send_hue(H,S,B))
+
+
 if __name__ == '__main__':
     monitor = sct.monitors[monitor_number]
     screen  = crop_dimensions(monitor,crop)
@@ -277,28 +306,8 @@ if __name__ == '__main__':
         print("Crop method : keep frame")
         print("Effort (pixels per second/1000) :", loops_per_sec/1000*(int(monitor['width']/divider)*int(monitor['height']/divider)-int(screen['width']/divider)*int(screen['height']/divider)))
     print("")
-
+    loop_step(monitor,screen,True)
 
     while True:
-        if bezel == 2:
-            sct_img = sct.grab(screen)
-        else:
-            sct_img = sct.grab(monitor)
-
-        im = Image.frombytes("RGB", sct_img.size, sct_img.bgra, "raw", "BGRX")
-
-        main_pixel = average_colour(im,bezel,screen,sct.monitors[monitor_number])
-
-        r = main_pixel[0]
-        g = main_pixel[1]
-        b = main_pixel[2]
-
-        HSB = rgb2hsv(r, g, b)
-
-        H = int(65535/360*HSB[0])
-        S = int(r_sat*HSB[1])+m_sat
-        B = int(r_bri*HSB[2])+m_bri
-
-        daemonizer(send_hue(H,S,B))
-
+        loop_step(monitor,screen,False)
         sleep(t_sleep)
