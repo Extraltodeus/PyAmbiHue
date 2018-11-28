@@ -80,7 +80,7 @@ monitor_number=1
 chosen_light = config['chosen_light']
 print()
 
-answer = input("Select an option (leave blank for last settings)\n\n1 : Custom profile\n2 : comfort mode\n3 : gaming mode\n4 : frame mode\n5 : full range mode\n6 : custom profile settings\n")
+answer = input("Select an option (leave blank for last settings)\n\n1 : Custom profile\n2 : comfort mode\n3 : gaming mode\n4 : frame mode\n5 : full range mode\n6 : custom profile settings\n\n")
 loops_per_sec=""
 if answer == "6":
     print("\n! You can always press enter to validate the previous value !\n")
