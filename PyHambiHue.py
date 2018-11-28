@@ -80,9 +80,9 @@ monitor_number=1
 chosen_light = config['chosen_light']
 print()
 
-answer = input("Select an option (leave blank for last settings)\n\n1 : Custom profile\n2 : comfort mode\n3 : gaming mode\n4 : custom profile settings\n")
+answer = input("Select an option (leave blank for last settings)\n\n1 : Custom profile\n2 : comfort mode\n3 : gaming mode\n4 : frame mode\n5 : full range mode\n6 : custom profile settings\n")
 loops_per_sec=""
-if answer == "4":
+if answer == "6":
     print("\n! You can always press enter to validate the previous value !\n")
     loops_per_sec = input("How many loops per second? (0-10) (Last "+str(config['loops_per_sec'])+") : ")
     if loops_per_sec == "":
@@ -155,8 +155,8 @@ elif answer == "2":
     m_bri = 80
     r_bri = 70
     divider = 4
-    crop = 1.2
-    bezel = 1
+    crop = 1
+    bezel = 2
 elif answer == "3":
     loops_per_sec = 12.5
     m_sat = 205
@@ -165,6 +165,24 @@ elif answer == "3":
     r_bri = 155
     divider = 5
     crop = 2
+    bezel = 2
+elif answer == "4":
+    loops_per_sec = 4
+    m_sat = 205
+    r_sat = 50
+    m_bri = 120
+    r_bri = 70
+    divider = 4
+    crop = 1.3
+    bezel = 1
+elif answer == "5":
+    loops_per_sec = 10
+    m_sat = 0
+    r_sat = 255
+    m_bri = 0
+    r_bri = 255
+    divider = 5
+    crop = 1
     bezel = 2
 else:
     loops_per_sec = config['loops_per_sec']
