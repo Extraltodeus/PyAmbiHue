@@ -1,3 +1,4 @@
+#!/usr/bin/python
 import os
 from time import sleep
 import sys
@@ -293,9 +294,10 @@ def loop_step(monitor,screen,scnst):
     b = main_pixel[2]
 
     HSB = rgb2hsv(r, g, b)
+    sat_exponential = 1-(1-HSB[1])*(1-HSB[1])
 
     H = int(65535/360*HSB[0])
-    S = int(r_sat*HSB[1])+m_sat
+    S = int(r_sat*sat_exponential)+m_sat
     B = int(r_bri*HSB[2])+m_bri
 
     daemonizer(send_hue(H,S,B))
