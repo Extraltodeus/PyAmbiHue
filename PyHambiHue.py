@@ -20,6 +20,13 @@ except ImportError:
     sleep(300)
 directory = os.path.dirname(os.path.realpath(__file__))+"/"
 
+if len(sys.argv)>1 :
+    choice = sys.argv[1]
+else:
+    choice = False
+
+col_dom = False
+
 def init_config():
     IP = str(input("Please enter your hue bridge IP address: "))
     if IP == "":
@@ -81,7 +88,10 @@ monitor_number=1
 chosen_light = config['chosen_light']
 print()
 
-answer = input("Select an option (leave blank for last settings)\n\n1 : Custom profile\n2 : comfort mode\n3 : gaming mode\n4 : frame mode\n5 : full range mode\n6 : custom profile settings\n\n")
+if not choice:
+    answer = input("Select an option (leave blank for last settings)\n\n1 : Last settings\n2 : comfort mode\n3 : gaming mode\n4 : frame mode\n5 : full range mode\n6 : custom profile settings\n\n")
+else:
+    answer = choice
 loops_per_sec=""
 if answer == "6":
     print("\n! You can always press enter to validate the previous value !\n")
@@ -137,18 +147,6 @@ if answer == "6":
     else:
         bezel = 2
 
-    config['loops_per_sec'] = loops_per_sec
-    config['divider'] = divider
-    config['m_sat'] = m_sat
-    config['m_bri'] = m_bri
-    config['r_sat'] = r_sat
-    config['r_bri'] = r_bri
-    config['crop']  = crop
-    config['bezel'] = bezel
-
-    with open(directory+'config.json', 'w') as fp:
-        json.dump(config, fp)
-
 elif answer == "2":
     loops_per_sec = 2
     m_sat = 70
@@ -165,7 +163,7 @@ elif answer == "3":
     m_bri = 100
     r_bri = 155
     divider = 5
-    crop = 2
+    crop = 1.5
     bezel = 2
 elif answer == "4":
     loops_per_sec = 4
@@ -195,6 +193,18 @@ else:
     crop  = config['crop']
     bezel = config['bezel']
 
+config['loops_per_sec'] = loops_per_sec
+config['divider'] = divider
+config['m_sat'] = m_sat
+config['m_bri'] = m_bri
+config['r_sat'] = r_sat
+config['r_bri'] = r_bri
+config['crop']  = crop
+config['bezel'] = bezel
+
+with open(directory+'config.json', 'w') as fp:
+    json.dump(config, fp)
+
 t_sleep = 1/loops_per_sec
 transitiontime = ceil(t_sleep*10)
 
@@ -215,6 +225,15 @@ def daemonizer(fName):
         daemon.start()
     except Exception as e:
         print(e)
+
+def most_frequent_colour(image):
+    w, h = image.size
+    pixels = image.getcolors(w * h)
+    most_frequent_pixel = pixels[0]
+    for count, colour in pixels:
+        if count > most_frequent_pixel[0]:
+            most_frequent_pixel = (count, colour)
+    return most_frequent_pixel
 
 def average_colour(image,bezel,screen,coord,scnst):
     w, h = image.size
@@ -287,11 +306,16 @@ def loop_step(monitor,screen,scnst):
 
     im = Image.frombytes("RGB", sct_img.size, sct_img.bgra, "raw", "BGRX")
 
-    main_pixel = average_colour(im,bezel,screen,sct.monitors[monitor_number],scnst)
-
-    r = main_pixel[0]
-    g = main_pixel[1]
-    b = main_pixel[2]
+    if col_dom:
+        main_pixel = most_frequent_colour(im)
+        r = main_pixel[1][0]
+        g = main_pixel[1][1]
+        b = main_pixel[1][2]
+    else:
+        main_pixel = average_colour(im,bezel,screen,sct.monitors[monitor_number],scnst)
+        r = main_pixel[0]
+        g = main_pixel[1]
+        b = main_pixel[2]
 
     HSB = rgb2hsv(r, g, b)
     sat_exponential = 1-(1-HSB[1])*(1-HSB[1])
@@ -321,10 +345,10 @@ if __name__ == '__main__':
     print("Crop factor :",crop)
     if bezel == 2:
         print("Crop method : keep center")
-        print("Effort (pixels per second/1000) :", loops_per_sec/1000*(int(screen['width']/divider)*int(screen['height']/divider)))
+        print("Effort (pixels per second/1000) :", round(loops_per_sec/1000*(int(screen['width']/divider)*int(screen['height']/divider)),3))
     else:
         print("Crop method : keep frame")
-        print("Effort (pixels per second/1000) :", loops_per_sec/1000*(int(monitor['width']/divider)*int(monitor['height']/divider)-int(screen['width']/divider)*int(screen['height']/divider)))
+        print("Effort (pixels per second/1000) :", round(loops_per_sec/1000*(int(monitor['width']/divider)*int(monitor['height']/divider)-int(screen['width']/divider)*int(screen['height']/divider)),3))
     print("")
     loop_step(monitor,screen,True)
 
